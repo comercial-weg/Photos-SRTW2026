@@ -182,7 +182,7 @@ Upload:
 tools/upload_r2.sh output srtw-photos
 ```
 
-Sekitar 35 GB, kira-kira 4 jam di internet upload 20 Mbps. Aman dijalankan ulang. Upload bisa dimulai sambil OCR masih berjalan (jalankan ulang di akhir untuk sisa fotonya).
+Sekitar 40 GB (original ±30 GB + web 4000 px ±10 GB untuk ±8.000 foto), kira-kira 4,5 jam di internet upload 20 Mbps. Aman dijalankan ulang. Upload bisa dimulai sambil OCR masih berjalan (jalankan ulang di akhir untuk sisa fotonya).
 
 Di Windows tanpa bash, jalankan tiga perintah `rclone copy` yang ada di dalam `tools/upload_r2.sh` satu per satu.
 
