@@ -227,7 +227,7 @@ def main():
     detail_csv = os.path.join(out, 'ocr_detail.csv')
     done = load_done(photos_csv)
 
-    tasks, ids, unknown_point = [], {}, 0
+    tasks, ids, unknown_point, redo = [], {}, 0, 0
     for root, dirs, files in os.walk(src):
         dirs[:] = sorted(d for d in dirs if not d.startswith('.'))
         for name in sorted(files):
@@ -242,7 +242,10 @@ def main():
                 continue
             ids[pid] = rel
             if pid in done:
-                continue
+                if all(os.path.exists(os.path.join(out, sub, pid + '.jpg')) for sub in ('thumb', 'web', 'full')):
+                    continue
+                redo += 1  # tercatat tapi file hasilnya hilang/terputus: olah ulang
+                done.discard(pid)
             point = detect_point(rel, args.point, point_map)
             if not point:
                 unknown_point += 1
@@ -251,6 +254,8 @@ def main():
         tasks = tasks[:args.limit]
 
     print(f'{len(ids)} foto ditemukan, {len(done)} sudah diolah, {len(tasks)} akan diolah dengan {args.workers} proses.')
+    if redo:
+        print(f'{redo} foto tercatat tapi file hasilnya tidak lengkap, jadi diolah ulang.')
     if unknown_point:
         print(f'PERINGATAN: {unknown_point} foto tidak punya titik foto (nama folder tidak dikenali, --point kosong). '
               'Foto tetap bisa dicari dengan BIB, tapi tidak muncul di "Cari per titik foto".', file=sys.stderr)

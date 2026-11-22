@@ -149,6 +149,7 @@ def main():
             skipped += 1
             continue
         if pid in seen:
+            # bisa terjadi kalau foto diolah ulang; baris pertama yang dipakai
             print(f'  {n}: id "{pid}" dobel, dilewati', file=sys.stderr)
             skipped += 1
             continue

@@ -63,6 +63,14 @@ Perintah ini mengambil foto dari Drive, menjalankan OCR + resize, membangun inde
 
 Kalau hanya mengubah rentang BIB atau daftar hapus: `python3 tools/run_pipeline.py --index-only`.
 
+### Foto menyusul (misalnya besok ada upload baru)
+
+Jalankan perintah yang sama lagi di **laptop yang sama**. Hanya foto baru yang di-download, di-OCR, dan di-upload; index dibangun ulang dalam beberapa detik. Syaratnya:
+
+- **Jangan hapus folder `output/`** (berisi `photos.csv` = catatan foto yang sudah diolah, plus hasil thumb/web/full). Folder `originals/` boleh dihapus kalau disk penuh, tapi rclone akan men-download ulang semuanya di putaran berikutnya.
+- Kalau ada file hasil yang hilang atau rusak (misalnya laptop mati di tengah proses), foto itu otomatis diolah ulang.
+- Setelah selesai, commit dan push `site/data` lagi supaya website ter-update.
+
 Bagian di bawah menjelaskan tiap langkah secara terpisah.
 
 ## Langkah dari foto asli sampai online
