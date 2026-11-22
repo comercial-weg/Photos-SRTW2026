@@ -1,0 +1,13 @@
+{
+  // Cloudflare Workers (static assets). Tidak ada kode server: semua file di site/ disajikan apa adanya.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "photos-srtw2026",
+  "compatibility_date": "2026-11-19",
+  "assets": {
+    "directory": "site",
+    // URL yang tidak ada dijawab site/404.html dengan status 404.
+    // Jangan diganti "single-page-application": index BIB yang tidak ada harus tetap 404.
+    "not_found_handling": "404-page"
+  },
+  "observability": { "enabled": true }
+}

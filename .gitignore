@@ -6,3 +6,7 @@ output/
 venv/
 __pycache__/
 .DS_Store
+
+# Wrangler
+.wrangler/
+node_modules/

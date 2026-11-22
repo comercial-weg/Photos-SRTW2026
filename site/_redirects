@@ -1,2 +1,3 @@
-# Link per BIB (/bib/10234) diarahkan ke halaman utama, app.js yang membaca nomornya
-/bib/*  /index.html  200
+# Link per BIB (/bib/54326) ditampilkan dengan halaman utama; app.js yang membaca nomornya.
+# Tujuannya "/" (bukan /index.html) supaya tidak berputar di Cloudflare Workers.
+/bib/*  /  200

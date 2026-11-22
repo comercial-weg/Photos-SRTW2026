@@ -163,7 +163,8 @@ Di Windows tanpa bash, jalankan tiga perintah `rclone copy` yang ada di dalam `t
 2. Di `site/index.html`, `og:image` diganti ke URL lengkap, misalnya `https://domainkamu.id/assets/logo.png`, supaya preview link di WhatsApp muncul.
 3. Hapus `site/demo-photos/` dan baris `/demo-photos/*` di `site/_headers`.
 4. Deploy, pilih salah satu:
-   - **Dari GitHub:** Workers & Pages > Create > Pages > Connect to Git > pilih repo ini. Framework preset: None, build command kosong, **build output directory: `site`**. Setiap push ke `main` otomatis deploy.
+   - **Cloudflare Workers dari GitHub (yang dipakai sekarang):** Workers & Pages > Create > Import a repository > pilih repo ini. Pengaturan ada di `wrangler.jsonc` (folder `site`, 404 dari `404.html`), deploy command `npx wrangler deploy`. Setiap push ke `main` otomatis deploy.
+   - **Cloudflare Pages dari GitHub:** Workers & Pages > Create > Pages > Connect to Git > pilih repo ini. Framework preset: None, build command kosong, **build output directory: `site`**. Setiap push ke `main` otomatis deploy.
    - **Dari terminal:** `npx wrangler pages deploy site --project-name srtw-photos`
 5. Tab **Custom domains** > sambungkan `domainkamu.id`.
 
