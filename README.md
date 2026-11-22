@@ -25,6 +25,8 @@ tools/                  TIDAK di-deploy
   process_photos.py     OCR BIB + 3 ukuran foto + photos.csv
   build_index.py        photos.csv -> site/data
   upload_r2.sh          upload output/ ke R2 dengan rclone
+  run_pipeline.py       SATU perintah: download Drive -> OCR -> index -> upload R2
+  event.json            pengaturan run_pipeline (titik per fotografer, rentang BIB, R2)
   check_live.py         cek galeri online sebelum link disebar
   load_test.py          uji beban (banyak pencarian bersamaan)
   requirements.txt
@@ -41,6 +43,27 @@ python3 -m http.server 8000
 ```
 
 Buka http://localhost:8000. Data bawaan adalah uji coba 50 foto asli dari CAM AAN: cari BIB **54326**, **52501**, atau **10785**. Di localhost link BIB berformat `/?bib=54326`; setelah online otomatis jadi `/bib/54326`.
+
+## Cara cepat (satu perintah)
+
+Sekali saja: pasang Python 3.10–3.13 dan [rclone](https://rclone.org/install/), buat remote rclone `gdrive` (Google Drive) dan `r2` (langkah 4), lalu:
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r tools/requirements.txt
+```
+
+Isi `tools/event.json`: titik foto per fotografer (`point_map`), rentang BIB, nama bucket. Lalu dari folder utama repo:
+
+```bash
+python3 tools/run_pipeline.py --download --upload
+```
+
+Perintah ini mengambil foto dari Drive, menjalankan OCR + resize, membangun index ke `site/data`, dan meng-upload foto ke R2. Kalau terputus, jalankan perintah yang sama lagi: yang sudah selesai dilewati. Setelah selesai, commit dan push `site/data`, lalu Cloudflare akan deploy otomatis.
+
+Kalau hanya mengubah rentang BIB atau daftar hapus: `python3 tools/run_pipeline.py --index-only`.
+
+Bagian di bawah menjelaskan tiap langkah secara terpisah.
 
 ## Langkah dari foto asli sampai online
 

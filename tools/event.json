@@ -1,0 +1,27 @@
+{
+  "_keterangan": "Pengaturan run_pipeline.py. Ubah di sini, lalu jalankan: python3 tools/run_pipeline.py",
+
+  "drive_remote": "gdrive",
+  "drive_folder": "ALL PHOTO EVENT",
+  "drive_shared_with_me": true,
+
+  "src": "originals",
+  "out": "output",
+  "site_data": "site/data",
+  "workers": 2,
+
+  "point_map": {
+    "CAM AAN": "rute",
+    "CAM DANDI": "rute",
+    "CAM BIBIN": "rute",
+    "CAM JULIAN": "rute"
+  },
+  "default_point": "rute",
+
+  "valid_ranges": "5K=50000-54700,10K=10000-11999",
+  "participants": "",
+  "removed": "removed.txt",
+
+  "r2_remote": "r2",
+  "r2_bucket": "srtw-photos"
+}
