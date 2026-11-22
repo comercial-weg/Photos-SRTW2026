@@ -55,7 +55,8 @@ def write_json(path, doc):
 
 def main():
     ap = argparse.ArgumentParser(description='Bangun index BIB dari hasil OCR.')
-    ap.add_argument('--photos', required=True, help='CSV hasil OCR')
+    ap.add_argument('--photos', required=True, nargs='+',
+                    help='CSV hasil OCR; boleh beberapa file (hasil dari beberapa komputer)')
     ap.add_argument('--participants', help='CSV peserta (bib, category)')
     ap.add_argument('--out', default='data', help='folder output (default: data)')
     ap.add_argument('--removed', help='daftar permintaan hapus (lihat keterangan di atas)')
@@ -106,39 +107,43 @@ def main():
     seen = set()
     total = skipped = untagged = 0
 
-    with open(args.photos, newline='', encoding='utf-8-sig') as f:
-        for n, row in enumerate(csv.DictReader(f), start=2):
-            pid = (row.get('id') or '').strip()
-            if pid.lower().endswith('.jpg'):
-                pid = pid[:-4]
-            if not pid or not ID_RE.match(pid):
-                print(f'  baris {n}: id "{pid}" tidak valid (hanya huruf, angka, - dan _), dilewati', file=sys.stderr)
-                skipped += 1
-                continue
-            if pid in seen:
-                print(f'  baris {n}: id "{pid}" dobel, dilewati', file=sys.stderr)
-                skipped += 1
-                continue
-            seen.add(pid)
-            if pid in hidden_ids:
-                skipped += 1
-                continue
+    rows = []
+    for path in args.photos:
+        with open(path, newline='', encoding='utf-8-sig') as f:
+            rows += [(f'{os.path.basename(path)} baris {n}', row) for n, row in enumerate(csv.DictReader(f), start=2)]
 
-            point = (row.get('point') or '').strip().lower()
-            if point and not POINT_RE.match(point):
-                print(f'  baris {n}: point "{point}" tidak valid, foto tetap masuk tanpa titik', file=sys.stderr)
-                point = ''
+    for n, row in rows:
+        pid = (row.get('id') or '').strip()
+        if pid.lower().endswith('.jpg'):
+            pid = pid[:-4]
+        if not pid or not ID_RE.match(pid):
+            print(f'  {n}: id "{pid}" tidak valid (hanya huruf, angka, - dan _), dilewati', file=sys.stderr)
+            skipped += 1
+            continue
+        if pid in seen:
+            print(f'  {n}: id "{pid}" dobel, dilewati', file=sys.stderr)
+            skipped += 1
+            continue
+        seen.add(pid)
+        if pid in hidden_ids:
+            skipped += 1
+            continue
 
-            bibs = sorted({b for b in (clean_bib(x) for x in re.split(r'[\s,;|]+', row.get('bibs') or ''))
-                           if b and b not in hidden_bibs})
-            photo = {'id': pid, 'point': point, 'time': norm_time(row.get('time')), 'bibs': bibs}
-            total += 1
-            if not bibs:
-                untagged += 1
-            if point:
-                by_point[point].append(photo)
-            for b in bibs:
-                by_bib[b].append(photo)
+        point = (row.get('point') or '').strip().lower()
+        if point and not POINT_RE.match(point):
+            print(f'  {n}: point "{point}" tidak valid, foto tetap masuk tanpa titik', file=sys.stderr)
+            point = ''
+
+        bibs = sorted({b for b in (clean_bib(x) for x in re.split(r'[\s,;|]+', row.get('bibs') or ''))
+                       if b and b not in hidden_bibs})
+        photo = {'id': pid, 'point': point, 'time': norm_time(row.get('time')), 'bibs': bibs}
+        total += 1
+        if not bibs:
+            untagged += 1
+        if point:
+            by_point[point].append(photo)
+        for b in bibs:
+            by_bib[b].append(photo)
 
     def order(p):
         return (p['time'] or '99:99', p['id'])

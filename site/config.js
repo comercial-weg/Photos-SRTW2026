@@ -21,7 +21,8 @@ window.SRTW_CONFIG = {
   // Versi foto yang dimasukkan ke ZIP "Download semua".
   // 'web' (sekitar 2048 px) jauh lebih ringan untuk HP dibanding 'full'.
   zipVariant: 'web',
-  jszipUrl: 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
+  // Disimpan di website sendiri supaya ZIP tidak bergantung pada CDN luar
+  jszipUrl: '/assets/jszip.min.js',
 
   // Link catatan waktu resmi. {bib} diganti nomor BIB.
   // Kosongkan ('') kalau belum ada. Hanya tampil untuk kategori di resultsCategories.

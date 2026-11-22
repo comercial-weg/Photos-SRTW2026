@@ -25,6 +25,8 @@ tools/                  TIDAK di-deploy
   process_photos.py     OCR BIB + 3 ukuran foto + photos.csv
   build_index.py        photos.csv -> site/data
   upload_r2.sh          upload output/ ke R2 dengan rclone
+  check_live.py         cek galeri online sebelum link disebar
+  load_test.py          uji beban (banyak pencarian bersamaan)
   requirements.txt
   sample/               contoh photos.csv dan participants.csv
 ```
@@ -72,6 +74,8 @@ File `.DS_Store` dan `._*` dari Mac otomatis dilewati.
 
 ### 2. OCR dan resize
 
+Butuh Python 3.10–3.13 (teruji di 3.13). Di Windows, ganti `source .venv/bin/activate` dengan `.venv\Scripts\activate`.
+
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r tools/requirements.txt
@@ -80,20 +84,35 @@ pip install -r tools/requirements.txt
 python3 tools/process_photos.py --src originals --out output --limit 100
 
 # semua foto (bisa dihentikan dengan Ctrl+C lalu dijalankan lagi)
-python3 tools/process_photos.py --src originals --out output --workers 4
+python3 tools/process_photos.py --src originals --out output
 ```
 
 Yang dilakukan script untuk setiap foto:
 
 - `thumb/` sisi pendek 480 px (±60–80 KB), `web/` sisi panjang 2048 px (±250–350 KB), `full/` salinan file asli.
 - Jam diambil dari EXIF kamera. Kalau jam kamera meleset, pakai `--time-offset` (menit, misalnya `--time-offset -7`).
-- BIB dibaca dua kali: foto utuh diperkecil, lalu 6 potongan resolusi penuh untuk BIB kecil di kerumunan.
+- BIB dibaca dua kali: foto utuh 2000 px, lalu 4 potongan dari versi 4000 px untuk BIB kecil di kerumunan.
 - Hanya angka yang cocok dengan pola BIB (`--bib-regex`, default 5 digit diawali 1 atau 5) dan berskor minimal 0,7 (`--min-conf`) yang dipakai sebagai tag. Lebih baik foto tidak tertandai daripada salah orang; foto itu tetap bisa ditemukan lewat "Cari per titik foto".
 - Semua bacaan beserta skornya dicatat di `output/ocr_detail.csv` untuk dicek.
 
-Kecepatan: sekitar 6 detik per foto per proses (diukur di 4 core). Untuk 10.000 foto: sekitar 17 jam dengan 1 proses, jauh lebih cepat dengan `--workers` sebanyak setengah jumlah core.
+Kecepatan (diukur di komputer 4 core, termasuk resize dan salin file): sekitar 3,4 detik per foto dengan 2 proses (default). Perkiraan: 3.000 foto ≈ 3 jam, 6.000 ≈ 6 jam, 10.000 ≈ 9,5 jam. Lebih dari 2 proses tidak membantu, karena satu proses OCR sudah memakai banyak core.
 
 Hasil uji pada 4 foto asli (22 November 2026): 11 BIB terbaca benar, 0 salah orang; 1 bacaan salah (skor 0,59) tersaring oleh ambang 0,7.
+
+**Supaya lebih cepat, bagi ke beberapa laptop.** Setiap laptop memegang salinan `originals/` yang sama (atau minimal folder fotografernya) dan mengolah satu fotografer:
+
+```bash
+# laptop 1
+python3 tools/process_photos.py --src originals --out output-aan --only "CAM AAN" --point-map "CAM AAN=rute"
+# laptop 2
+python3 tools/process_photos.py --src originals --out output-dandi --only "CAM DANDI" --point-map "CAM DANDI=finish"
+```
+
+Lalu gabungkan di satu komputer: salin isi `thumb/`, `web/`, `full/` dari semua folder output ke satu `output/`, dan bangun index dari semua CSV sekaligus:
+
+```bash
+python3 tools/build_index.py --photos output-aan/photos.csv output-dandi/photos.csv --out site/data
+```
 
 ### 3. Bangun index
 
@@ -131,7 +150,9 @@ Upload:
 tools/upload_r2.sh output srtw-photos
 ```
 
-Sekitar 35 GB, kira-kira 4 jam di internet upload 20 Mbps. Aman dijalankan ulang.
+Sekitar 35 GB, kira-kira 4 jam di internet upload 20 Mbps. Aman dijalankan ulang. Upload bisa dimulai sambil OCR masih berjalan (jalankan ulang di akhir untuk sisa fotonya).
+
+Di Windows tanpa bash, jalankan tiga perintah `rclone copy` yang ada di dalam `tools/upload_r2.sh` satu per satu.
 
 ### 5. Deploy website ke Cloudflare Pages
 
@@ -165,6 +186,15 @@ python3 tools/build_index.py --photos output/photos.csv --removed removed.txt --
 
 Untuk menghapus file fotonya juga: `rclone delete r2:srtw-photos --include "*/rute-aan00845.jpg"`, lalu purge cache domain foto di Cloudflare.
 
+### 7. Cek sebelum link disebar
+
+```bash
+python3 tools/check_live.py https://domainkamu.id
+python3 tools/load_test.py https://domainkamu.id --users 300 --minutes 3
+```
+
+`check_live.py` memeriksa og:image, photoBaseUrl, link `/bib/`, index, foto di R2, CORS, dan cache CDN, lalu menandai yang belum beres dengan `!!`. `load_test.py` mensimulasikan ratusan pengunjung mencari BIB bersamaan dan melaporkan error serta waktu respons.
+
 ## Pengaturan di site/config.js
 
 | Kunci | Isi |
@@ -185,4 +215,5 @@ Untuk menghapus file fotonya juga: `rclone delete r2:srtw-photos --include "*/ru
 - [ ] Coba buka link `/bib/<nomor>` langsung dari WhatsApp di HP
 - [ ] `og:image` sudah URL lengkap
 - [ ] `resultsUrl` dan `removalUrl` sudah diisi
-- [ ] Uji beban: beberapa ribu pencarian bersamaan
+- [ ] `python3 tools/check_live.py <alamat>` lolos semua
+- [ ] `python3 tools/load_test.py <alamat>` lolos
