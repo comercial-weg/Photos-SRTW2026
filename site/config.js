@@ -6,7 +6,7 @@ window.SRTW_CONFIG = {
   eventName: 'She Runs The World 2026',
 
   // Alamat folder foto. Isinya tiga subfolder: thumb/, web/, full/
-  // Uji coba 50 foto asli (CAM AAN): '/pilot-photos' (download per foto = versi 4000 px, ±1,2 MB)
+  // Uji coba 50 foto asli (CAM AAN): '/pilot-photos' (unduh per foto = 4000 px; versi final = file asli dari R2)
   // Setelah foto di-upload ke R2: 'https://foto.domainkamu.id'
   photoBaseUrl: '/pilot-photos',
 
@@ -19,7 +19,7 @@ window.SRTW_CONFIG = {
   prettyUrls: 'auto',
 
   // Versi foto yang dimasukkan ke ZIP "Download semua".
-  // 'web' (4000 px, ±1,2 MB per foto) lebih ringan untuk HP dibanding 'full' (file asli 4-7 MB).
+  // 'web' (2048 px, ±0,3 MB per foto) jauh lebih ringan untuk HP dibanding 'full' (file asli 4-7 MB).
   zipVariant: 'web',
   // Disimpan di website sendiri supaya ZIP tidak bergantung pada CDN luar
   jszipUrl: '/assets/jszip.min.js',

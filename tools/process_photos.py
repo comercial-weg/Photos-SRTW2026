@@ -16,8 +16,8 @@ Output:
 
   output/
     thumb/<id>.jpg   sisi pendek 480 px, untuk grid
-    web/<id>.jpg     sisi panjang 4000 px kualitas 90 (±1-1,5 MB), untuk pratinjau dan ZIP
-    full/<id>.jpg    salinan file asli, untuk tombol download
+    web/<id>.jpg     sisi panjang 2048 px kualitas 85 (±0,3 MB), untuk pratinjau dan ZIP (ringan di HP)
+    full/<id>.jpg    salinan file asli (kualitas penuh), untuk tombol unduh per foto
     photos.csv       id, point, time, bibs  -> masukan build_index.py
     ocr_detail.csv   semua bacaan OCR + skor, untuk cek kualitas
 
@@ -206,8 +206,8 @@ def main():
     ap.add_argument('--time-offset', type=int, default=0,
                     help='koreksi jam kamera dalam menit, misalnya -7 kalau jam kamera 7 menit lebih cepat')
     ap.add_argument('--limit', type=int, default=0, help='olah maksimal N foto baru (untuk uji)')
-    ap.add_argument('--web-size', type=int, default=4000, help='sisi panjang versi web dalam px (default 4000)')
-    ap.add_argument('--web-quality', type=int, default=90, help='kualitas JPEG versi web (default 90, ±1-1,5 MB)')
+    ap.add_argument('--web-size', type=int, default=2048, help='sisi panjang versi web/pratinjau dalam px (default 2048)')
+    ap.add_argument('--web-quality', type=int, default=85, help='kualitas JPEG versi web/pratinjau (default 85, ±0,3 MB)')
     ap.add_argument('--no-ocr', action='store_true', help='hanya resize, tanpa OCR')
     args = ap.parse_args()
 
