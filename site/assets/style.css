@@ -481,6 +481,7 @@ a:hover { color: var(--rose-deep); }
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
+.point-btn-all { grid-column: 1 / -1; }
 .point-btn {
   display: flex;
   flex-direction: column;

@@ -499,12 +499,17 @@
 
   /* ---------- Browse by point ---------- */
 
+  var ALL = { id: 'all', label: 'Semua foto', desc: 'Semua titik foto, urut jam' };
+
   function renderPoints() {
-    var counts = (state.meta && state.meta.points) || {};
-    var buttons = POINTS.map(function (p) {
+    var counts = {};
+    var mp = (state.meta && state.meta.points) || {};
+    for (var k in mp) counts[k] = mp[k];
+    if (state.meta && state.meta.totalPhotos != null) counts.all = state.meta.totalPhotos;
+    var buttons = [ALL].concat(POINTS).map(function (p) {
       var c = counts[p.id];
       return h('button', {
-        class: 'point-btn',
+        class: 'point-btn' + (p.id === 'all' ? ' point-btn-all' : ''),
         type: 'button',
         'data-point': p.id,
         'aria-pressed': state.browse.point === p.id ? 'true' : 'false',
@@ -531,23 +536,27 @@
     return f(a) + '–' + f(b);
   }
 
-  function openPoint(id) {
-    var p = pointById[id];
+  function openPoint(id, opts) {
+    opts = opts || {};
+    var p = id === 'all' ? ALL : pointById[id];
     state.browse = { point: id, photos: [], slot: 'all', shown: 0 };
     $$('.point-btn').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-point') === id ? 'true' : 'false'); });
     el.browse.hidden = false;
-    el.browseTitle.textContent = 'Foto di ' + (p ? p.label : id);
+    el.browseTitle.textContent = id === 'all' ? 'Semua foto' : 'Foto di ' + (p ? p.label : id);
     el.browseStatus.textContent = 'Memuat foto…';
     el.slots.replaceChildren();
     el.browseGrid.replaceChildren.apply(el.browseGrid, skeletonCards(8));
     el.loadMore.hidden = true;
-    el.browseTitle.focus({ preventScroll: true });
-    el.browse.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' });
+    if (!opts.quiet) {
+      el.browseTitle.focus({ preventScroll: true });
+      el.browse.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' });
+    }
 
-    fetchJSON(DATA_BASE + '/points/' + id + '.json').then(function (data) {
+    var url = id === 'all' ? DATA_BASE + '/all.json' : DATA_BASE + '/points/' + id + '.json';
+    fetchJSON(url).then(function (data) {
       if (state.browse.point !== id) return;
       var photos = ((data && data.photos) || []).map(function (ph) {
-        return { id: ph.id, time: ph.time, bibs: ph.bibs || [], point: id, slot: slotKey(ph.time) };
+        return { id: ph.id, time: ph.time, bibs: ph.bibs || [], point: ph.point || id, slot: slotKey(ph.time) };
       }).sort(byTime);
       state.browse.photos = photos;
       if (!photos.length) {
@@ -686,17 +695,9 @@
     else resetSearch();
   });
 
-  var removal = $('#removal-link');
-  if (C.removalUrl) {
-    removal.href = C.removalUrl;
-    removal.target = '_blank';
-    removal.rel = 'noopener';
-  } else {
-    removal.replaceWith(document.createTextNode('Hubungi WhatsApp resmi panitia'));
-  }
-
   renderPoints();
   loadMeta();
   var initial = readBibFromUrl();
   if (initial) searchBib(initial, { push: false });
+  if (C.showAllOnHome !== false) openPoint('all', { quiet: true });
 })();

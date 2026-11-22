@@ -66,7 +66,6 @@ def main():
     data_base = cfg_value('dataBaseUrl') or '/data'
     check(photo_base.startswith('https://') and 'r2.dev' not in photo_base,
           'photoBaseUrl mengarah ke domain foto sendiri', photo_base or 'kosong')
-    check(bool(cfg_value('removalUrl')), 'removalUrl (minta hapus foto) sudah diisi')
     check(bool(cfg_value('resultsUrl')), 'resultsUrl (catatan waktu 10K) sudah diisi', 'boleh kosong kalau memang belum ada')
 
     status, _, _ = get(site + '/bib/12345')

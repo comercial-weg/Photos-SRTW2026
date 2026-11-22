@@ -18,6 +18,7 @@ Input:
 Output (folder --out, default ./data):
   bib/<nomor>.json      satu file per BIB
   points/<titik>.json   semua foto per titik, termasuk yang BIB-nya tidak terbaca
+  all.json              semua foto (untuk halaman depan), urut jam
   meta.json             jumlah foto, jumlah BIB, waktu update
 
 Contoh:
@@ -129,6 +130,7 @@ def main():
                     hidden_ids.add(line[:-4] if line.lower().endswith('.jpg') else line)
 
     by_bib = defaultdict(list)
+    seen_photos = []
     by_point = defaultdict(list)
     seen = set()
     total = skipped = untagged = 0
@@ -174,6 +176,7 @@ def main():
             bibs = [b for b in bibs if range_category(b)]
         photo = {'id': pid, 'point': point, 'time': norm_time(row.get('time')), 'bibs': bibs}
         total += 1
+        seen_photos.append(photo)
         if not bibs:
             untagged += 1
         if point:
@@ -201,6 +204,11 @@ def main():
             'point': point,
             'photos': [{'id': p['id'], 'time': p['time'], 'bibs': p['bibs']} for p in sorted(photos, key=order)],
         })
+
+    every = sorted((p for p in seen_photos), key=order)
+    write_json(os.path.join(out, 'all.json'), {
+        'photos': [{'id': p['id'], 'point': p['point'], 'time': p['time'], 'bibs': p['bibs']} for p in every],
+    })
 
     write_json(os.path.join(out, 'meta.json'), {
         'totalPhotos': total,

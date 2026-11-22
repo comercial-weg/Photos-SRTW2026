@@ -75,7 +75,7 @@ Kumpulkan foto ke `originals/`, satu subfolder per titik foto. Nama folder bebas
 |---|---|---|
 | Race Village | `village`, `photo wall`, `warm` | `village` |
 | Start | `start` | `start` |
-| Di Rute | `rute`, `route`, `course`, `km` | `rute` |
+| On Race | `rute`, `route`, `course`, `km` | `rute` |
 | Finish | `finish` | `finish` |
 
 Dari Google Drive, paling cepat dengan [rclone](https://rclone.org/drive/) (buat remote `gdrive` sekali dengan `rclone config`):
@@ -191,7 +191,6 @@ Di Windows tanpa bash, jalankan tiga perintah `rclone copy` yang ada di dalam `t
 1. Di `site/config.js`:
    - `photoBaseUrl` diganti ke `https://foto.domainkamu.id`
    - `resultsUrl` diisi link catatan waktu 10K (`{bib}` diganti nomor BIB), atau biarkan kosong
-   - `removalUrl` diisi link WhatsApp panitia untuk minta foto dihapus
 2. Di `site/index.html`, `og:image` diganti ke URL lengkap, misalnya `https://domainkamu.id/assets/logo.png`, supaya preview link di WhatsApp muncul.
 3. Hapus `site/pilot-photos/` dan baris `/pilot-photos/*` di `site/_headers`.
 4. Deploy, pilih salah satu:
@@ -235,7 +234,6 @@ python3 tools/load_test.py https://domainkamu.id --users 300 --minutes 3
 | `photoBaseUrl` | alamat R2, misalnya `https://foto.domainkamu.id` |
 | `resultsUrl` | link catatan waktu resmi, `{bib}` diganti nomor BIB; kosongkan kalau belum ada |
 | `resultsCategories` | kategori yang punya timing resmi (`['10K']`) |
-| `removalUrl` | link WhatsApp/email untuk minta foto dihapus |
 | `points` | daftar titik foto; `id` harus sama dengan kolom `point` di photos.csv |
 | `zipVariant` | `web` (disarankan) atau `full` untuk isi ZIP |
 
@@ -247,6 +245,6 @@ python3 tools/load_test.py https://domainkamu.id --users 300 --minutes 3
 - [ ] Coba 3–5 BIB asli: grid, pratinjau, download satu foto, dan ZIP
 - [ ] Coba buka link `/bib/<nomor>` langsung dari WhatsApp di HP
 - [ ] `og:image` sudah URL lengkap
-- [ ] `resultsUrl` dan `removalUrl` sudah diisi
+- [ ] `resultsUrl` sudah diisi (kalau ada)
 - [ ] `python3 tools/check_live.py <alamat>` lolos semua
 - [ ] `python3 tools/load_test.py <alamat>` lolos
