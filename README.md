@@ -122,7 +122,14 @@ python3 tools/build_index.py --photos output/photos.csv --out site/data
 
 Kategori 5K/10K diambil dari digit pertama BIB (1xxxx = 10K, 5xxxx = 5K). Kalau perlu, pakai `--participants peserta.csv` (kolom `bib,category`) atau ubah aturannya dengan `--category-prefix "1=10K,5=5K"`.
 
-**Sangat disarankan:** minta daftar BIB peserta dari panitia, lalu tambahkan `--participants peserta.csv --only-registered`. Pada uji 50 foto, sekitar 2 dari 119 tag ternyata salah baca (misalnya `15438`, yang bukan nomor peserta). Opsi ini membuang BIB yang tidak terdaftar.
+**Saring salah baca dengan rentang BIB** (5K dari panitia: 50000–54700; 10K sementara 10001–11999, berdasarkan BIB yang terlihat di foto dan masih perlu dikonfirmasi):
+
+```bash
+python3 tools/build_index.py --photos output/photos.csv --out site/data \
+  --valid-ranges "5K=50000-54700,10K=10001-11999"
+```
+
+BIB di luar rentang dibuang dan kategori diambil dari rentangnya. Kalau daftar BIB peserta lengkap tersedia, `--participants peserta.csv --only-registered` lebih ketat lagi. Pada uji 50 foto, sekitar 2 dari 119 tag ternyata salah baca (misalnya `15438`, yang bukan nomor peserta). Opsi ini membuang BIB yang tidak terdaftar.
 
 ### 4. Upload foto ke R2
 

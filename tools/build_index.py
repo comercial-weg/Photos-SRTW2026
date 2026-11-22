@@ -59,6 +59,9 @@ def main():
                     help='CSV hasil OCR; boleh beberapa file (hasil dari beberapa komputer)')
     ap.add_argument('--participants', help='CSV peserta (bib, category)')
     ap.add_argument('--out', default='data', help='folder output (default: data)')
+    ap.add_argument('--valid-ranges', default='',
+                    help='rentang BIB sah per kategori, misalnya "5K=50001-54700,10K=10001-11999". '
+                         'BIB di luar rentang dibuang (salah baca OCR) dan kategori diambil dari rentangnya')
     ap.add_argument('--only-registered', action='store_true',
                     help='buang BIB yang tidak ada di participants.csv (menyaring salah baca OCR)')
     ap.add_argument('--removed', help='daftar permintaan hapus (lihat keterangan di atas)')
@@ -75,9 +78,26 @@ def main():
                 prefix_rules.append((pre, cat))
     prefix_rules.sort(key=lambda r: -len(r[0]))
 
+    ranges = []
+    for part in (args.valid_ranges or '').split(','):
+        m = re.match(r'^\s*([^=]+)=(\d+)-(\d+)\s*$', part)
+        if m:
+            ranges.append((m.group(1).strip(), int(m.group(2)), int(m.group(3))))
+        elif part.strip():
+            ap.error(f'--valid-ranges tidak dikenali: "{part}"')
+
+    def range_category(bib):
+        n = int(bib)
+        for cat, lo, hi in ranges:
+            if lo <= n <= hi:
+                return cat
+        return None
+
     def category_of(bib):
         if categories.get(bib):
             return categories[bib]
+        if ranges:
+            return range_category(bib)
         for pre, cat in prefix_rules:
             if bib.startswith(pre):
                 return cat
@@ -145,6 +165,9 @@ def main():
         if args.only_registered:
             dropped_unknown.update(b for b in bibs if b not in categories)
             bibs = [b for b in bibs if b in categories]
+        if ranges:
+            dropped_unknown.update(b for b in bibs if not range_category(b))
+            bibs = [b for b in bibs if range_category(b)]
         photo = {'id': pid, 'point': point, 'time': norm_time(row.get('time')), 'bibs': bibs}
         total += 1
         if not bibs:
@@ -185,7 +208,7 @@ def main():
 
     print(f'Selesai: {total} foto, {len(by_bib)} BIB, {untagged} foto tanpa BIB terbaca, {skipped} baris dilewati.')
     if dropped_unknown:
-        print(f'{len(dropped_unknown)} BIB tidak terdaftar dibuang (kemungkinan salah baca): '
+        print(f'{len(dropped_unknown)} BIB tidak terdaftar / di luar rentang dibuang (kemungkinan salah baca): '
               + ' '.join(sorted(dropped_unknown)[:30]) + (' ...' if len(dropped_unknown) > 30 else ''))
     print(f'Titik: ' + ', '.join(f'{p}={len(v)}' for p, v in sorted(by_point.items())))
     print(f'Output: {os.path.abspath(out)}')
