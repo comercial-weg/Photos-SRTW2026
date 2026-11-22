@@ -20,7 +20,7 @@ site/                   SEMUA yang di-deploy ke Cloudflare Pages
   _headers              aturan cache
   assets/               style.css, app.js, logo
   data/                 index pencarian (hasil build_index.py)
-  demo-photos/          56 foto contoh untuk mode demo
+  pilot-photos/         uji coba 50 foto asli CAM AAN (thumb, web; full = salinan web)
 tools/                  TIDAK di-deploy
   process_photos.py     OCR BIB + 3 ukuran foto + photos.csv
   build_index.py        photos.csv -> site/data
@@ -40,7 +40,7 @@ cd site
 python3 -m http.server 8000
 ```
 
-Buka http://localhost:8000. Data bawaan masih data demo: cari BIB **10234**, **10871**, atau **50112**. Di localhost link BIB berformat `/?bib=10234`; setelah online otomatis jadi `/bib/10234`.
+Buka http://localhost:8000. Data bawaan adalah uji coba 50 foto asli dari CAM AAN: cari BIB **54326**, **52501**, atau **10785**. Di localhost link BIB berformat `/?bib=54326`; setelah online otomatis jadi `/bib/54326`.
 
 ## Langkah dari foto asli sampai online
 
@@ -122,6 +122,8 @@ python3 tools/build_index.py --photos output/photos.csv --out site/data
 
 Kategori 5K/10K diambil dari digit pertama BIB (1xxxx = 10K, 5xxxx = 5K). Kalau perlu, pakai `--participants peserta.csv` (kolom `bib,category`) atau ubah aturannya dengan `--category-prefix "1=10K,5=5K"`.
 
+**Sangat disarankan:** minta daftar BIB peserta dari panitia, lalu tambahkan `--participants peserta.csv --only-registered`. Pada uji 50 foto, sekitar 2 dari 119 tag ternyata salah baca (misalnya `15438`, yang bukan nomor peserta). Opsi ini membuang BIB yang tidak terdaftar.
+
 ### 4. Upload foto ke R2
 
 Persiapan sekali di Cloudflare dashboard:
@@ -161,7 +163,7 @@ Di Windows tanpa bash, jalankan tiga perintah `rclone copy` yang ada di dalam `t
    - `resultsUrl` diisi link catatan waktu 10K (`{bib}` diganti nomor BIB), atau biarkan kosong
    - `removalUrl` diisi link WhatsApp panitia untuk minta foto dihapus
 2. Di `site/index.html`, `og:image` diganti ke URL lengkap, misalnya `https://domainkamu.id/assets/logo.png`, supaya preview link di WhatsApp muncul.
-3. Hapus `site/demo-photos/` dan baris `/demo-photos/*` di `site/_headers`.
+3. Hapus `site/pilot-photos/` dan baris `/pilot-photos/*` di `site/_headers`.
 4. Deploy, pilih salah satu:
    - **Cloudflare Workers dari GitHub (yang dipakai sekarang):** Workers & Pages > Create > Import a repository > pilih repo ini. Pengaturan ada di `wrangler.jsonc` (folder `site`, 404 dari `404.html`), deploy command `npx wrangler deploy`. Setiap push ke `main` otomatis deploy.
    - **Cloudflare Pages dari GitHub:** Workers & Pages > Create > Pages > Connect to Git > pilih repo ini. Framework preset: None, build command kosong, **build output directory: `site`**. Setiap push ke `main` otomatis deploy.
@@ -209,7 +211,7 @@ python3 tools/load_test.py https://domainkamu.id --users 300 --minutes 3
 
 ## Checklist sebelum link disebar
 
-- [ ] `photoBaseUrl` mengarah ke domain R2, bukan `/demo-photos`
+- [ ] `photoBaseUrl` mengarah ke domain R2, bukan `/pilot-photos`
 - [ ] CORS R2 berisi domain website yang benar
 - [ ] Cache rule domain foto aktif
 - [ ] Coba 3–5 BIB asli: grid, pratinjau, download satu foto, dan ZIP

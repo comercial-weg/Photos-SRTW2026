@@ -74,9 +74,14 @@ def detect_point(rel_path, default, point_map=()):
     return default
 
 
+CAMERA_DIR = re.compile(r'^(dcim|\d{3}[a-z0-9_]{5})$', re.I)  # DCIM, 100MSDCF, 101CANON, ...
+
+
 def make_id(rel_path):
-    stem = os.path.splitext(rel_path.replace('\\', '/'))[0]
-    slug = re.sub(r'[^A-Za-z0-9]+', '-', stem).strip('-').lower()
+    parts = os.path.splitext(rel_path.replace('\\', '/'))[0].split('/')
+    # Folder bawaan kamera (DCIM/100MSDCF) tidak ikut nama, supaya id pendek: cam-aan-cam-1-aan00845
+    parts = [p for p in parts[:-1] if not CAMERA_DIR.match(p)] + parts[-1:]
+    slug = re.sub(r'[^A-Za-z0-9]+', '-', '-'.join(parts)).strip('-').lower()
     return slug[-80:].strip('-')
 
 
@@ -175,7 +180,7 @@ def load_done(path):
 def open_csv(path, fields):
     new = not os.path.exists(path) or os.path.getsize(path) == 0
     f = open(path, 'a', newline='', encoding='utf-8')
-    w = csv.DictWriter(f, fieldnames=fields)
+    w = csv.DictWriter(f, fieldnames=fields, lineterminator='\n')
     if new:
         w.writeheader()
     return f, w

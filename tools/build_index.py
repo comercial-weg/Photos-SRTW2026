@@ -59,6 +59,8 @@ def main():
                     help='CSV hasil OCR; boleh beberapa file (hasil dari beberapa komputer)')
     ap.add_argument('--participants', help='CSV peserta (bib, category)')
     ap.add_argument('--out', default='data', help='folder output (default: data)')
+    ap.add_argument('--only-registered', action='store_true',
+                    help='buang BIB yang tidak ada di participants.csv (menyaring salah baca OCR)')
     ap.add_argument('--removed', help='daftar permintaan hapus (lihat keterangan di atas)')
     ap.add_argument('--category-prefix', default='1=10K,5=5K',
                     help='kategori dari awalan BIB bila tidak ada di participants.csv '
@@ -88,6 +90,10 @@ def main():
                 bib = clean_bib(row.get('bib'))
                 if bib:
                     categories[bib] = (row.get('category') or '').strip() or None
+
+    if args.only_registered and not categories:
+        ap.error('--only-registered butuh --participants berisi daftar BIB')
+    dropped_unknown = set()
 
     hidden_ids, hidden_bibs = set(), set()
     if args.removed:
@@ -136,6 +142,9 @@ def main():
 
         bibs = sorted({b for b in (clean_bib(x) for x in re.split(r'[\s,;|]+', row.get('bibs') or ''))
                        if b and b not in hidden_bibs})
+        if args.only_registered:
+            dropped_unknown.update(b for b in bibs if b not in categories)
+            bibs = [b for b in bibs if b in categories]
         photo = {'id': pid, 'point': point, 'time': norm_time(row.get('time')), 'bibs': bibs}
         total += 1
         if not bibs:
@@ -175,6 +184,9 @@ def main():
     })
 
     print(f'Selesai: {total} foto, {len(by_bib)} BIB, {untagged} foto tanpa BIB terbaca, {skipped} baris dilewati.')
+    if dropped_unknown:
+        print(f'{len(dropped_unknown)} BIB tidak terdaftar dibuang (kemungkinan salah baca): '
+              + ' '.join(sorted(dropped_unknown)[:30]) + (' ...' if len(dropped_unknown) > 30 else ''))
     print(f'Titik: ' + ', '.join(f'{p}={len(v)}' for p, v in sorted(by_point.items())))
     print(f'Output: {os.path.abspath(out)}')
 

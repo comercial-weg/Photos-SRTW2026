@@ -6,15 +6,15 @@ window.SRTW_CONFIG = {
   eventName: 'She Runs The World 2026',
 
   // Alamat folder foto. Isinya tiga subfolder: thumb/, web/, full/
-  // Selama demo: '/demo-photos'
+  // Uji coba 50 foto asli (CAM AAN): '/pilot-photos' (download per foto = versi 2048 px)
   // Setelah foto di-upload ke R2: 'https://foto.domainkamu.id'
-  photoBaseUrl: '/demo-photos',
+  photoBaseUrl: '/pilot-photos',
 
   // Folder index hasil tools/build_index.py
   dataBaseUrl: '/data',
 
-  // Link per BIB: true  -> /bib/10234
-  //               false -> /?bib=10234
+  // Link per BIB: true  -> /bib/54326
+  //               false -> /?bib=54326
   //               'auto'-> /?bib= saat dibuka di localhost, /bib/ saat online
   prettyUrls: 'auto',
 
