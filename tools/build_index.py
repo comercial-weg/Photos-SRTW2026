@@ -113,7 +113,7 @@ def main():
 
     if args.only_registered and not categories:
         ap.error('--only-registered butuh --participants berisi daftar BIB')
-    dropped_unknown = set()
+    dropped_unknown = defaultdict(int)  # BIB -> jumlah foto
 
     hidden_ids, hidden_bibs = set(), set()
     if args.removed:
@@ -163,10 +163,14 @@ def main():
         bibs = sorted({b for b in (clean_bib(x) for x in re.split(r'[\s,;|]+', row.get('bibs') or ''))
                        if b and b not in hidden_bibs})
         if args.only_registered:
-            dropped_unknown.update(b for b in bibs if b not in categories)
+            for b in bibs:
+                if b not in categories:
+                    dropped_unknown[b] += 1
             bibs = [b for b in bibs if b in categories]
         if ranges:
-            dropped_unknown.update(b for b in bibs if not range_category(b))
+            for b in bibs:
+                if not range_category(b):
+                    dropped_unknown[b] += 1
             bibs = [b for b in bibs if range_category(b)]
         photo = {'id': pid, 'point': point, 'time': norm_time(row.get('time')), 'bibs': bibs}
         total += 1
@@ -208,8 +212,11 @@ def main():
 
     print(f'Selesai: {total} foto, {len(by_bib)} BIB, {untagged} foto tanpa BIB terbaca, {skipped} baris dilewati.')
     if dropped_unknown:
-        print(f'{len(dropped_unknown)} BIB tidak terdaftar / di luar rentang dibuang (kemungkinan salah baca): '
-              + ' '.join(sorted(dropped_unknown)[:30]) + (' ...' if len(dropped_unknown) > 30 else ''))
+        top = sorted(dropped_unknown.items(), key=lambda kv: (-kv[1], kv[0]))
+        print(f'{len(dropped_unknown)} BIB tidak terdaftar / di luar rentang dibuang (kemungkinan salah baca).')
+        print('  BIB (jumlah foto), terbanyak dulu. BIB asli muncul di banyak foto; kalau ada yang')
+        print('  sering muncul, berarti rentangnya terlalu sempit:')
+        print('  ' + '  '.join(f'{b}({n})' for b, n in top[:40]) + ('  ...' if len(top) > 40 else ''))
     print(f'Titik: ' + ', '.join(f'{p}={len(v)}' for p, v in sorted(by_point.items())))
     print(f'Output: {os.path.abspath(out)}')
 
