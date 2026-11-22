@@ -1,0 +1,2 @@
+# Link per BIB (/bib/10234) diarahkan ke halaman utama, app.js yang membaca nomornya
+/bib/*  /index.html  200

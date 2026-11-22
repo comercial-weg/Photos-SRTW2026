@@ -1,0 +1,179 @@
+# Galeri Foto She Runs The World 2026
+
+Website untuk mencari foto lari dengan nomor BIB. Tidak ada server atau database: halaman, index BIB, dan foto semuanya file statis yang dilayani CDN Cloudflare, jadi aman untuk ribuan pengunjung bersamaan.
+
+```
+Google Drive ──► originals/<titik>/ ──► process_photos.py ──► output/thumb, web, full ──► upload_r2.sh ──► R2
+(foto asli)                              (OCR BIB + resize)   output/photos.csv
+                                                                   │
+                                                                   ▼
+                                                            build_index.py ──► site/data ──► Cloudflare Pages
+```
+
+## Isi repo
+
+```
+site/                   SEMUA yang di-deploy ke Cloudflare Pages
+  index.html, 404.html
+  config.js             semua pengaturan
+  _redirects            /bib/54326 diarahkan ke index.html
+  _headers              aturan cache
+  assets/               style.css, app.js, logo
+  data/                 index pencarian (hasil build_index.py)
+  demo-photos/          56 foto contoh untuk mode demo
+tools/                  TIDAK di-deploy
+  process_photos.py     OCR BIB + 3 ukuran foto + photos.csv
+  build_index.py        photos.csv -> site/data
+  upload_r2.sh          upload output/ ke R2 dengan rclone
+  requirements.txt
+  sample/               contoh photos.csv dan participants.csv
+```
+
+Folder `originals/` dan `output/` tidak masuk git (lihat `.gitignore`).
+
+## Coba di komputer sendiri
+
+```bash
+cd site
+python3 -m http.server 8000
+```
+
+Buka http://localhost:8000. Data bawaan masih data demo: cari BIB **10234**, **10871**, atau **50112**. Di localhost link BIB berformat `/?bib=10234`; setelah online otomatis jadi `/bib/10234`.
+
+## Langkah dari foto asli sampai online
+
+### 1. Ambil foto asli
+
+Kumpulkan foto ke `originals/`, satu subfolder per titik foto. Nama folder bebas asal mengandung kata kuncinya:
+
+| Titik | Kata kunci nama folder | id di config.js |
+|---|---|---|
+| Race Village | `village`, `photo wall`, `warm` | `village` |
+| Start | `start` | `start` |
+| Di Rute | `rute`, `route`, `course`, `km` | `rute` |
+| Finish | `finish` | `finish` |
+
+Dari Google Drive, paling cepat dengan [rclone](https://rclone.org/drive/) (buat remote `gdrive` sekali dengan `rclone config`):
+
+```bash
+rclone copy "gdrive:Foto SRTW 2026" originals --drive-shared-with-me --transfers 8 --progress
+```
+
+Hapus `--drive-shared-with-me` kalau foldernya ada di Drive Anda sendiri.
+
+### 2. OCR dan resize
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r tools/requirements.txt
+
+# uji 100 foto dulu, lalu cek output/ocr_detail.csv
+python3 tools/process_photos.py --src originals --out output --limit 100
+
+# semua foto (bisa dihentikan dengan Ctrl+C lalu dijalankan lagi)
+python3 tools/process_photos.py --src originals --out output --workers 4
+```
+
+Yang dilakukan script untuk setiap foto:
+
+- `thumb/` sisi pendek 480 px (±60–80 KB), `web/` sisi panjang 2048 px (±250–350 KB), `full/` salinan file asli.
+- Jam diambil dari EXIF kamera. Kalau jam kamera meleset, pakai `--time-offset` (menit, misalnya `--time-offset -7`).
+- BIB dibaca dua kali: foto utuh diperkecil, lalu 6 potongan resolusi penuh untuk BIB kecil di kerumunan.
+- Hanya angka yang cocok dengan pola BIB (`--bib-regex`, default 5 digit diawali 1 atau 5) dan berskor minimal 0,7 (`--min-conf`) yang dipakai sebagai tag. Lebih baik foto tidak tertandai daripada salah orang; foto itu tetap bisa ditemukan lewat "Cari per titik foto".
+- Semua bacaan beserta skornya dicatat di `output/ocr_detail.csv` untuk dicek.
+
+Kecepatan: sekitar 6 detik per foto per proses (diukur di 4 core). Untuk 10.000 foto: sekitar 17 jam dengan 1 proses, jauh lebih cepat dengan `--workers` sebanyak setengah jumlah core.
+
+Hasil uji pada 4 foto asli (22 November 2026): 11 BIB terbaca benar, 0 salah orang; 1 bacaan salah (skor 0,59) tersaring oleh ambang 0,7.
+
+### 3. Bangun index
+
+```bash
+python3 tools/build_index.py --photos output/photos.csv --out site/data
+```
+
+Kategori 5K/10K diambil dari digit pertama BIB (1xxxx = 10K, 5xxxx = 5K). Kalau perlu, pakai `--participants peserta.csv` (kolom `bib,category`) atau ubah aturannya dengan `--category-prefix "1=10K,5=5K"`.
+
+### 4. Upload foto ke R2
+
+Persiapan sekali di Cloudflare dashboard:
+
+1. **R2** > buat bucket `srtw-photos`.
+2. Bucket > **Settings > Custom Domains** > sambungkan subdomain, misalnya `foto.domainkamu.id`. Domainnya harus dikelola di Cloudflare. Jangan pakai alamat `r2.dev` untuk acara, kecepatannya dibatasi.
+3. Bucket > **Settings > CORS Policy** (wajib supaya download dan ZIP berfungsi):
+
+   ```json
+   [
+     {
+       "AllowedOrigins": ["https://domainkamu.id"],
+       "AllowedMethods": ["GET", "HEAD"],
+       "AllowedHeaders": ["*"],
+       "MaxAgeSeconds": 86400
+     }
+   ]
+   ```
+
+4. Domain > **Caching > Cache Rules** > hostname sama dengan `foto.domainkamu.id`, **Eligible for cache**, Edge TTL 1 bulan.
+5. **R2 > Manage API Tokens** > buat token Object Read & Write, lalu `rclone config` > remote baru bernama `r2`, tipe `s3`, provider `Cloudflare`, isi Access Key, Secret, dan endpoint `https://<account_id>.r2.cloudflarestorage.com`.
+
+Upload:
+
+```bash
+tools/upload_r2.sh output srtw-photos
+```
+
+Sekitar 35 GB, kira-kira 4 jam di internet upload 20 Mbps. Aman dijalankan ulang.
+
+### 5. Deploy website ke Cloudflare Pages
+
+1. Di `site/config.js`:
+   - `photoBaseUrl` diganti ke `https://foto.domainkamu.id`
+   - `resultsUrl` diisi link catatan waktu 10K (`{bib}` diganti nomor BIB), atau biarkan kosong
+   - `removalUrl` diisi link WhatsApp panitia untuk minta foto dihapus
+2. Di `site/index.html`, `og:image` diganti ke URL lengkap, misalnya `https://domainkamu.id/assets/logo.png`, supaya preview link di WhatsApp muncul.
+3. Hapus `site/demo-photos/` dan baris `/demo-photos/*` di `site/_headers`.
+4. Deploy, pilih salah satu:
+   - **Dari GitHub:** Workers & Pages > Create > Pages > Connect to Git > pilih repo ini. Framework preset: None, build command kosong, **build output directory: `site`**. Setiap push ke `main` otomatis deploy.
+   - **Dari terminal:** `npx wrangler pages deploy site --project-name srtw-photos`
+5. Tab **Custom domains** > sambungkan `domainkamu.id`.
+
+Pages membatasi 20.000 file per deploy. Index untuk 5.000 peserta sekitar 5.000 file, jadi aman. Foto **jangan** dimasukkan ke Pages; foto tetap di R2.
+
+### 6. Permintaan hapus foto
+
+Tulis di `removed.txt` (satu per baris):
+
+```
+rute-aan00845      # sembunyikan satu foto dari galeri
+bib 54326          # hapus tag BIB ini dari semua foto
+```
+
+Lalu bangun ulang index dan deploy:
+
+```bash
+python3 tools/build_index.py --photos output/photos.csv --removed removed.txt --out site/data
+```
+
+Untuk menghapus file fotonya juga: `rclone delete r2:srtw-photos --include "*/rute-aan00845.jpg"`, lalu purge cache domain foto di Cloudflare.
+
+## Pengaturan di site/config.js
+
+| Kunci | Isi |
+|---|---|
+| `photoBaseUrl` | alamat R2, misalnya `https://foto.domainkamu.id` |
+| `resultsUrl` | link catatan waktu resmi, `{bib}` diganti nomor BIB; kosongkan kalau belum ada |
+| `resultsCategories` | kategori yang punya timing resmi (`['10K']`) |
+| `removalUrl` | link WhatsApp/email untuk minta foto dihapus |
+| `points` | daftar titik foto; `id` harus sama dengan kolom `point` di photos.csv |
+| `zipVariant` | `web` (disarankan) atau `full` untuk isi ZIP |
+
+## Checklist sebelum link disebar
+
+- [ ] `photoBaseUrl` mengarah ke domain R2, bukan `/demo-photos`
+- [ ] CORS R2 berisi domain website yang benar
+- [ ] Cache rule domain foto aktif
+- [ ] Coba 3–5 BIB asli: grid, pratinjau, download satu foto, dan ZIP
+- [ ] Coba buka link `/bib/<nomor>` langsung dari WhatsApp di HP
+- [ ] `og:image` sudah URL lengkap
+- [ ] `resultsUrl` dan `removalUrl` sudah diisi
+- [ ] Uji beban: beberapa ribu pencarian bersamaan

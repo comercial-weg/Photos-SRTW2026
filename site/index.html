@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cari Foto She Runs The World 2026</title>
+<meta name="description" content="Ketik nomor BIB kamu dan temukan semua foto lari di She Runs The World 2026, Plaza Timur GBK Jakarta, 22 November 2026.">
+<meta name="theme-color" content="#C7637B">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cari Foto She Runs The World 2026">
+<meta property="og:description" content="Ketik nomor BIB kamu, semua foto dari start sampai finish langsung muncul.">
+<meta property="og:image" content="/assets/logo.png">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/assets/style.css">
+<script src="/config.js"></script>
+<script src="/assets/app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Langsung ke konten</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <img src="/assets/logo.png" alt="She Runs The World 2026 by Heylocal" width="64" height="64">
+      <span class="brand-sub">Photos</span>
+    </a>
+    <nav class="site-nav" aria-label="Menu utama">
+      <a href="#cari">Cari foto</a>
+      <a href="#titik">Per titik foto</a>
+      <a href="#bantuan">Bantuan</a>
+      <a class="nav-cta" href="https://www.sherunstheworld.id/">sherunstheworld.id</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="cari" aria-labelledby="hero-title">
+    <svg class="deco deco-1" aria-hidden="true" width="90" height="60" viewBox="0 0 90 60"><path d="M6 10 L40 26 L34 34 L84 52" fill="none" stroke="#BAB448" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg class="deco deco-2" aria-hidden="true" width="90" height="60" viewBox="0 0 90 60"><path d="M6 10 L40 26 L34 34 L84 52" fill="none" stroke="#C7637B" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg class="deco deco-3" aria-hidden="true" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="11" fill="none" stroke="#E47E92" stroke-width="7"/></svg>
+
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <ul class="facts" aria-label="Info acara">
+          <li>Minggu, 22 November 2026</li>
+          <li>Plaza Timur, GBK Jakarta</li>
+          <li>5K &amp; 10K</li>
+        </ul>
+        <h1 id="hero-title">Temukan <span class="h1-rose">momen</span> <span class="h1-olive">larimu.</span></h1>
+        <p class="lede">Ketik nomor BIB kamu, semua foto dari start sampai finish langsung muncul. Gratis diunduh dalam resolusi penuh.</p>
+
+        <form class="search" id="search-form" role="search" novalidate>
+          <div class="search-field">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <label for="bib-input" class="sr-only">Nomor BIB</label>
+            <input id="bib-input" name="bib" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" placeholder="Contoh: 54326" aria-describedby="search-hint">
+          </div>
+          <button type="submit">Cari foto</button>
+        </form>
+        <p class="hint" id="search-hint">Nomor BIB ada di bagian depan jersey kamu.</p>
+      </div>
+      <div class="hero-logo">
+        <img src="/assets/logo.png" alt="" width="360" height="360">
+      </div>
+    </div>
+  </section>
+
+  <section class="results" id="hasil" aria-labelledby="results-title" hidden>
+    <div class="wrap">
+      <div class="results-head">
+        <div>
+          <h2 class="results-title" id="results-title" tabindex="-1">BIB <span class="bib-no"></span></h2>
+          <p class="results-meta" id="results-meta" aria-live="polite"></p>
+        </div>
+        <div class="results-actions">
+          <button class="btn btn-olive" type="button" data-action="zip">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span>
+            <span data-zip-label>Download semua (ZIP)</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="results-body">
+        <div class="pills" id="result-filters" role="group" aria-label="Filter titik foto"></div>
+        <ul class="grid" id="result-grid"></ul>
+        <p class="note">Satu foto bisa punya beberapa tag BIB. Ketuk tag untuk melihat foto teman larimu.</p>
+      </div>
+
+      <div class="empty" id="results-empty" hidden>
+        <h3 id="empty-title"></h3>
+        <p id="empty-text"></p>
+        <div class="empty-actions">
+          <button class="btn btn-dark" type="button" id="retry-btn" hidden>Coba lagi</button>
+          <a class="btn btn-olive" href="#titik">Cari per titik foto</a>
+        </div>
+      </div>
+
+      <div class="mobile-bar" id="mobile-bar">
+        <button class="btn btn-olive" type="button" data-action="zip">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span>
+          <span data-zip-label>Download semua (ZIP)</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="browse" id="titik" aria-labelledby="browse-heading">
+    <div class="wrap">
+      <div class="browse-card">
+        <div class="browse-intro">
+          <h2 id="browse-heading">BIB kamu nggak kebaca?</h2>
+          <p class="browse-lead">Kadang nomor BIB tertutup tangan, terlipat, atau blur. Cari manual berdasarkan titik foto dan jam kamu lewat di sana.</p>
+          <p class="browse-times">Patokan: flag off 10K 05.45, 5K 06.00, finish gate tutup 08.30.</p>
+        </div>
+        <div class="point-grid" id="point-grid" role="group" aria-label="Pilih titik foto"></div>
+      </div>
+
+      <div class="browse-results" id="browse-results" hidden>
+        <div class="browse-head">
+          <h3 id="browse-title" tabindex="-1"></h3>
+          <p class="browse-status" id="browse-status" aria-live="polite"></p>
+        </div>
+        <div class="pills" id="slot-filters" role="group" aria-label="Filter jam"></div>
+        <ul class="grid" id="browse-grid"></ul>
+        <div class="load-more">
+          <button class="btn btn-outline" type="button" id="load-more" hidden>Muat lebih banyak</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap help" id="bantuan" aria-label="Bantuan">
+    <div class="help-card">
+      <span class="help-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span>
+      <h3>Gratis diunduh</h3>
+      <p>Unduh per foto dalam resolusi penuh, atau semua fotomu sekaligus dalam satu file ZIP.</p>
+    </div>
+    <div class="help-card">
+      <span class="help-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span>
+      <h3>Satu link untuk BIB-mu</h3>
+      <p>Setiap BIB punya alamat halaman sendiri. Bagikan alamat itu, teman yang buka langsung melihat fotomu.</p>
+    </div>
+    <div class="help-card">
+      <span class="help-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/></svg></span>
+      <h3>Minta foto dihapus</h3>
+      <p id="removal-text">Nggak mau fotomu tampil di galeri? <a id="removal-link" href="#bantuan">Ajukan penghapusan foto</a> dan sertakan nomor BIB serta foto yang dimaksud.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-info">
+      <span>She Runs The World 2026 by Heylocal</span>
+      <span class="footer-updated" id="footer-updated"></span>
+    </div>
+    <div class="footer-links">
+      <a href="https://www.instagram.com/sherunstheworld.id/" rel="noopener">@sherunstheworld.id</a>
+      <a href="https://www.instagram.com/heylocallady/" rel="noopener">@heylocallady</a>
+      <a href="https://linktr.ee/SheRunsTheWorld" rel="noopener">linktr.ee/SheRunsTheWorld</a>
+    </div>
+  </div>
+</footer>
+
+<dialog class="viewer" id="viewer" aria-labelledby="viewer-caption">
+  <div class="viewer-top">
+    <p class="viewer-caption"><span id="viewer-caption"></span><span class="viewer-counter" id="viewer-counter"></span></p>
+    <button class="viewer-btn" type="button" id="viewer-close" aria-label="Tutup">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="viewer-stage" id="viewer-stage">
+    <button class="viewer-btn viewer-nav viewer-prev" type="button" id="viewer-prev" aria-label="Foto sebelumnya">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <img id="viewer-img" alt="">
+    <button class="viewer-btn viewer-nav viewer-next" type="button" id="viewer-next" aria-label="Foto berikutnya">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+  <div class="viewer-bottom">
+    <div class="tags" id="viewer-tags"></div>
+    <button class="btn btn-olive" type="button" id="viewer-download">
+      <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span>
+      Download foto
+    </button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

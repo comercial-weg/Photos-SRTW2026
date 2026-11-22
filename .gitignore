@@ -1,0 +1,8 @@
+# Foto asli dan hasil olahan tidak masuk git (puluhan GB)
+originals/
+output/
+*.log
+.venv/
+venv/
+__pycache__/
+.DS_Store
