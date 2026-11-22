@@ -21,6 +21,10 @@ Output:
     photos.csv       id, point, time, bibs  -> masukan build_index.py
     ocr_detail.csv   semua bacaan OCR + skor, untuk cek kualitas
 
+Kalau folder disusun per fotografer (misalnya "CAM AAN", "CAM DANDI"), petakan
+ke titik foto dengan --point-map, bisa diulang:
+  --point-map "CAM AAN=rute" --point-map "CAM DANDI=finish"
+
 Script bisa dihentikan dan dijalankan lagi: foto yang sudah ada di photos.csv
 dilewati.
 
@@ -57,8 +61,12 @@ _ocr = None
 _cfg = None
 
 
-def detect_point(rel_path, default):
+def detect_point(rel_path, default, point_map=()):
     parts = rel_path.replace('\\', '/').lower().split('/')[:-1]
+    for part in parts:
+        for key, point in point_map:
+            if key in part:
+                return point
     for part in parts:
         for point, keys in POINT_KEYWORDS:
             if any(k in part for k in keys):
@@ -176,6 +184,8 @@ def main():
     ap.add_argument('--workers', type=int, default=max(1, (os.cpu_count() or 2) // 2),
                     help='jumlah proses sekaligus (default: setengah jumlah core)')
     ap.add_argument('--point', default='', help='titik foto untuk file yang foldernya tidak dikenali')
+    ap.add_argument('--point-map', action='append', default=[], metavar='"FOLDER=titik"',
+                    help='petakan folder ke titik foto, misalnya "CAM AAN=rute" (boleh diulang)')
     ap.add_argument('--bib-regex', default=r'[15]\d{4}',
                     help='pola nomor BIB (default: 5 digit diawali 1 atau 5)')
     ap.add_argument('--min-conf', type=float, default=0.7,
@@ -185,6 +195,14 @@ def main():
     ap.add_argument('--limit', type=int, default=0, help='olah maksimal N foto baru (untuk uji)')
     ap.add_argument('--no-ocr', action='store_true', help='hanya resize, tanpa OCR')
     args = ap.parse_args()
+
+    point_map = []
+    for item in args.point_map:
+        if '=' not in item:
+            ap.error(f'--point-map harus berbentuk "FOLDER=titik", bukan "{item}"')
+        key, point = (x.strip() for x in item.split('=', 1))
+        point_map.append((key.lower(), point.lower()))
+    point_map.sort(key=lambda kv: -len(kv[0]))
 
     src = os.path.abspath(args.src)
     out = os.path.abspath(args.out)
@@ -208,7 +226,7 @@ def main():
             ids[pid] = rel
             if pid in done:
                 continue
-            point = detect_point(rel, args.point)
+            point = detect_point(rel, args.point, point_map)
             if not point:
                 unknown_point += 1
             tasks.append((rel, pid, point))

@@ -61,6 +61,15 @@ rclone copy "gdrive:Foto SRTW 2026" originals --drive-shared-with-me --transfers
 
 Hapus `--drive-shared-with-me` kalau foldernya ada di Drive Anda sendiri.
 
+Folder "ALL PHOTO EVENT" disusun per fotografer (`CAM AAN`, `CAM DANDI`, `CAM BIBIN`), bukan per titik. Petakan fotografer ke titik foto saat menjalankan script di langkah 2, misalnya:
+
+```bash
+python3 tools/process_photos.py --src originals --out output \
+  --point-map "CAM AAN=rute" --point-map "CAM DANDI=finish" --point-map "CAM BIBIN=start"
+```
+
+File `.DS_Store` dan `._*` dari Mac otomatis dilewati.
+
 ### 2. OCR dan resize
 
 ```bash
