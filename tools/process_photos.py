@@ -16,7 +16,7 @@ Output:
 
   output/
     thumb/<id>.jpg   sisi pendek 480 px, untuk grid
-    web/<id>.jpg     sisi panjang 2048 px, untuk pratinjau dan ZIP
+    web/<id>.jpg     sisi panjang 4000 px kualitas 90 (±1-1,5 MB), untuk pratinjau dan ZIP
     full/<id>.jpg    salinan file asli, untuk tombol download
     photos.csv       id, point, time, bibs  -> masukan build_index.py
     ocr_detail.csv   semua bacaan OCR + skor, untuk cek kualitas
@@ -159,7 +159,7 @@ def process(task):
             shot_time = exif_time(raw, _cfg['time_offset'])
             img = ImageOps.exif_transpose(raw).convert('RGB')
         save_jpeg(resized(img, short_side=480), os.path.join(out, 'thumb', pid + '.jpg'), 78)
-        save_jpeg(resized(img, long_side=2048), os.path.join(out, 'web', pid + '.jpg'), 82)
+        save_jpeg(resized(img, long_side=_cfg['web_size']), os.path.join(out, 'web', pid + '.jpg'), _cfg['web_quality'])
         full = os.path.join(out, 'full', pid + '.jpg')
         shutil.copyfile(src, full + '.part')
         os.replace(full + '.part', full)
@@ -206,6 +206,8 @@ def main():
     ap.add_argument('--time-offset', type=int, default=0,
                     help='koreksi jam kamera dalam menit, misalnya -7 kalau jam kamera 7 menit lebih cepat')
     ap.add_argument('--limit', type=int, default=0, help='olah maksimal N foto baru (untuk uji)')
+    ap.add_argument('--web-size', type=int, default=4000, help='sisi panjang versi web dalam px (default 4000)')
+    ap.add_argument('--web-quality', type=int, default=90, help='kualitas JPEG versi web (default 90, ±1-1,5 MB)')
     ap.add_argument('--no-ocr', action='store_true', help='hanya resize, tanpa OCR')
     args = ap.parse_args()
 
@@ -256,7 +258,8 @@ def main():
         return
 
     cfg = {'src': src, 'out': out, 'bib_regex': args.bib_regex, 'min_conf': args.min_conf,
-           'time_offset': args.time_offset, 'no_ocr': args.no_ocr}
+           'time_offset': args.time_offset, 'no_ocr': args.no_ocr,
+           'web_size': args.web_size, 'web_quality': args.web_quality}
     pf, pw = open_csv(photos_csv, CSV_FIELDS)
     df, dw = open_csv(detail_csv, DETAIL_FIELDS)
     started, n, tagged, failed = time.time(), 0, 0, []

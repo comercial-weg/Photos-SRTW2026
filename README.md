@@ -20,7 +20,7 @@ site/                   SEMUA yang di-deploy ke Cloudflare Pages
   _headers              aturan cache
   assets/               style.css, app.js, logo
   data/                 index pencarian (hasil build_index.py)
-  pilot-photos/         uji coba 50 foto asli CAM AAN (thumb, web; full = salinan web)
+  pilot-photos/         uji coba 50 foto asli CAM AAN (thumb, web 4000 px; full = salinan web)
 tools/                  TIDAK di-deploy
   process_photos.py     OCR BIB + 3 ukuran foto + photos.csv
   build_index.py        photos.csv -> site/data
@@ -112,7 +112,7 @@ python3 tools/process_photos.py --src originals --out output
 
 Yang dilakukan script untuk setiap foto:
 
-- `thumb/` sisi pendek 480 px (±60–80 KB), `web/` sisi panjang 2048 px (±250–350 KB), `full/` salinan file asli.
+- `thumb/` sisi pendek 480 px (±60–80 KB), `web/` sisi panjang 4000 px kualitas 90 (±1,2 MB, rentang 0,6–1,8 MB), `full/` salinan file asli (4–7 MB). Ukuran web bisa diubah dengan `--web-size` dan `--web-quality`.
 - Jam diambil dari EXIF kamera. Kalau jam kamera meleset, pakai `--time-offset` (menit, misalnya `--time-offset -7`).
 - BIB dibaca dua kali: foto utuh 2000 px, lalu 4 potongan dari versi 4000 px untuk BIB kecil di kerumunan.
 - Hanya angka yang cocok dengan pola BIB (`--bib-regex`, default 5 digit diawali 1 atau 5) dan berskor minimal 0,7 (`--min-conf`) yang dipakai sebagai tag. Lebih baik foto tidak tertandai daripada salah orang; foto itu tetap bisa ditemukan lewat "Cari per titik foto".
