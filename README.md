@@ -191,7 +191,7 @@ Di Windows tanpa bash, jalankan tiga perintah `rclone copy` yang ada di dalam `t
 1. Di `site/config.js`:
    - `photoBaseUrl` diganti ke `https://foto.domainkamu.id`
    - `resultsUrl` diisi link catatan waktu 10K (`{bib}` diganti nomor BIB), atau biarkan kosong
-2. Di `site/index.html`, `og:image` diganti ke URL lengkap, misalnya `https://domainkamu.id/assets/logo.png`, supaya preview link di WhatsApp muncul.
+2. Di `site/index.html`, ganti alamat `https://photos-srtw2026.dodi-wahyono.workers.dev` di `og:url` dan `og:image` dengan domain baru, supaya preview link di WhatsApp (gambar `assets/og.jpg`) tetap muncul.
 3. Hapus `site/pilot-photos/` dan baris `/pilot-photos/*` di `site/_headers`.
 4. Deploy, pilih salah satu:
    - **Cloudflare Workers dari GitHub (yang dipakai sekarang):** Workers & Pages > Create > Import a repository > pilih repo ini. Pengaturan ada di `wrangler.jsonc` (folder `site`, 404 dari `404.html`), deploy command `npx wrangler deploy`. Setiap push ke `main` otomatis deploy.
