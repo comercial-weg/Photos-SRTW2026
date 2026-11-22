@@ -571,6 +571,8 @@ a:hover { color: var(--rose-deep); }
 .footer-updated { color: #D9B8C4; }
 .footer-links { display: flex; flex-wrap: wrap; gap: 8px 18px; }
 .site-footer a { color: #F7B9C6; }
+.footer-links a { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; }
+.footer-icon { flex: none; }
 .site-footer a:hover { color: #fff; }
 
 /* ---------- Photo viewer ---------- */
