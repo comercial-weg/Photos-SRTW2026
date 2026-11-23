@@ -18,7 +18,7 @@
   },
   "default_point": "rute",
 
-  "valid_ranges": "5K=50000-54700,10K=10000-11999",
+  "valid_ranges": "",
   "participants": "",
   "removed": "removed.txt",
 

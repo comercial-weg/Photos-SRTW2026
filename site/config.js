@@ -8,7 +8,7 @@ window.SRTW_CONFIG = {
   // Alamat folder foto. Isinya tiga subfolder: thumb/, web/, full/
   // Uji coba 50 foto asli (CAM AAN): '/pilot-photos' (unduh per foto = 4000 px; versi final = file asli dari R2)
   // Setelah foto di-upload ke R2: 'https://foto.domainkamu.id'
-  photoBaseUrl: '/pilot-photos',
+  photoBaseUrl: 'https://foto.sherunstheworld.id',
 
   // Folder index hasil tools/build_index.py
   dataBaseUrl: '/data',
