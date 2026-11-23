@@ -52,6 +52,8 @@
 
   function cleanBib(v) { return String(v || '').replace(/\D/g, '').slice(0, 8); }
   function fmtTime(t) { return String(t || '').replace(':', '.'); }
+  var SHOW_POINT = C.showPointLabels !== false;
+  var SHOW_TIME = C.showTimeFilter !== false;
   function pointLabel(id) { return (pointById[id] && pointById[id].label) || id || 'Foto'; }
   function photoUrl(variant, id) { return PHOTO_BASE + '/' + variant + '/' + encodeURIComponent(id) + '.jpg'; }
   function byTime(a, b) {
@@ -186,7 +188,7 @@
   }
 
   function photoCard(photo, index, list, bib) {
-    var label = pointLabel(photo.point);
+    var label = SHOW_POINT ? pointLabel(photo.point) + ', ' : '';
     var img = h('img', {
       src: photoUrl('thumb', photo.id),
       alt: '',
@@ -198,7 +200,7 @@
     var thumb = h('button', {
       class: 'thumb',
       type: 'button',
-      'aria-label': 'Buka foto ' + label + ', jam ' + fmtTime(photo.time),
+      'aria-label': 'Buka foto ' + label + 'jam ' + fmtTime(photo.time),
       onclick: function () { openViewer(list, index, bib, thumb); }
     }, img);
     img.addEventListener('error', function () { thumb.classList.add('is-broken'); });
@@ -206,7 +208,7 @@
     return h('li', { class: 'card' },
       thumb,
       h('div', { class: 'card-info' },
-        h('span', { class: 'card-point', text: label }),
+        SHOW_POINT ? h('span', { class: 'card-point', text: pointLabel(photo.point) }) : null,
         h('span', { class: 'card-time', text: fmtTime(photo.time) })
       ),
       h('div', { class: 'card-foot' },
@@ -214,7 +216,7 @@
         h('button', {
           class: 'icon-btn',
           type: 'button',
-          'aria-label': 'Download foto ' + label + ' ' + fmtTime(photo.time),
+          'aria-label': 'Download foto ' + label + 'jam ' + fmtTime(photo.time),
           onclick: function () { downloadPhoto(photo, bib); }
         }, icon(ICON_DOWNLOAD))
       )
@@ -335,6 +337,11 @@
   }
 
   function renderFilters() {
+    if (!SHOW_POINT) {
+      el.filters.replaceChildren();
+      el.filters.hidden = true;
+      return;
+    }
     var counts = {};
     state.photos.forEach(function (p) { counts[p.point] = (counts[p.point] || 0) + 1; });
     var buttons = [pillButton('Semua', state.photos.length, state.filter === 'all', function () { setFilter('all'); })];
@@ -476,7 +483,7 @@
     el.viewerImg.classList.add('is-loading');
     el.viewerImg.src = photoUrl('web', p.id);
     el.viewerImg.alt = 'Foto ' + label + ', jam ' + fmtTime(p.time);
-    el.viewerCaption.textContent = label + ', ' + fmtTime(p.time);
+    el.viewerCaption.textContent = SHOW_POINT ? label + ', ' + fmtTime(p.time) : 'Jam ' + fmtTime(p.time);
     el.viewerCounter.textContent = (v.index + 1) + ' / ' + v.list.length;
     el.viewerTags.replaceChildren(tagList(p.bibs, v.bib));
     el.viewerPrev.disabled = v.index === 0;
@@ -506,6 +513,11 @@
   var ALL = { id: 'all', label: 'Semua foto', desc: 'Semua titik foto, urut jam' };
 
   function renderPoints() {
+    if (!SHOW_POINT) {
+      el.pointGrid.replaceChildren();
+      el.pointGrid.hidden = true;
+      return;
+    }
     var counts = {};
     var mp = (state.meta && state.meta.points) || {};
     for (var k in mp) counts[k] = mp[k];
@@ -583,6 +595,11 @@
   }
 
   function renderSlots() {
+    if (!SHOW_TIME) {
+      el.slots.replaceChildren();
+      el.slots.hidden = true;
+      return;
+    }
     var b = state.browse;
     var counts = {};
     var order = [];

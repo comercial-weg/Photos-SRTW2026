@@ -40,6 +40,11 @@ window.SRTW_CONFIG = {
   // Halaman depan langsung menampilkan semua foto (urut jam)
   showAllOnHome: true,
 
+  // Label titik foto (Race Village/Start/On Race/Finish) di kartu, pratinjau, dan tombol pilihan titik
+  showPointLabels: false,
+  // Baris filter jam (05.00–05.15, dst.) di daftar foto
+  showTimeFilter: false,
+
   // Jumlah foto per halaman di daftar foto
   pageSize: 20,
   // Lebar rentang jam (menit) untuk filter jam di "Cari per titik foto"
