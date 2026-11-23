@@ -40,8 +40,8 @@ window.SRTW_CONFIG = {
   // Halaman depan langsung menampilkan semua foto (urut jam)
   showAllOnHome: true,
 
-  // Jumlah foto per muatan di daftar foto
-  pageSize: 24,
+  // Jumlah foto per halaman di daftar foto
+  pageSize: 20,
   // Lebar rentang jam (menit) untuk filter jam di "Cari per titik foto"
   slotMinutes: 15
 };

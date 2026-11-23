@@ -130,7 +130,11 @@
     browseStatus: $('#browse-status'),
     slots: $('#slot-filters'),
     browseGrid: $('#browse-grid'),
-    loadMore: $('#load-more'),
+    pager: $('#browse-pager'),
+    pagerInfo: $('#pager-info'),
+    pagerPages: $('#pager-pages'),
+    pagerJump: $('#pager-jump'),
+    pagerInput: $('#pager-input'),
     viewer: $('#viewer'),
     viewerImg: $('#viewer-img'),
     viewerCaption: $('#viewer-caption'),
@@ -151,7 +155,7 @@
     filter: 'all',
     zipping: false,
     meta: null,
-    browse: { point: null, photos: [], slot: 'all', shown: 0 },
+    browse: { point: null, photos: [], slot: 'all', page: 1 },
     viewer: { list: [], index: 0, bib: null, returnFocus: null }
   };
 
@@ -539,14 +543,14 @@
   function openPoint(id, opts) {
     opts = opts || {};
     var p = id === 'all' ? ALL : pointById[id];
-    state.browse = { point: id, photos: [], slot: 'all', shown: 0 };
+    state.browse = { point: id, photos: [], slot: 'all', page: 1 };
     $$('.point-btn').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-point') === id ? 'true' : 'false'); });
     el.browse.hidden = false;
     el.browseTitle.textContent = id === 'all' ? 'Semua foto' : 'Foto di ' + (p ? p.label : id);
     el.browseStatus.textContent = 'Memuat foto…';
     el.slots.replaceChildren();
     el.browseGrid.replaceChildren.apply(el.browseGrid, skeletonCards(8));
-    el.loadMore.hidden = true;
+    el.pager.hidden = true;
     if (!opts.quiet) {
       el.browseTitle.focus({ preventScroll: true });
       el.browse.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' });
@@ -565,7 +569,7 @@
         return;
       }
       renderSlots();
-      renderBrowseGrid(true);
+      renderBrowseGrid(1);
     }).catch(function () {
       if (state.browse.point !== id) return;
       el.browseGrid.replaceChildren();
@@ -598,23 +602,86 @@
   function setSlot(k) {
     state.browse.slot = k;
     renderSlots();
-    renderBrowseGrid(true);
+    renderBrowseGrid(1);
   }
 
-  function renderBrowseGrid(reset) {
+  function pageCount(list) { return Math.max(1, Math.ceil(list.length / PAGE_SIZE)); }
+
+  function renderBrowseGrid(page) {
     var b = state.browse;
     var list = browseList();
-    if (reset) {
-      b.shown = 0;
-      el.browseGrid.replaceChildren();
-    }
-    var end = Math.min(b.shown + PAGE_SIZE, list.length);
+    var pages = pageCount(list);
+    b.page = Math.min(Math.max(1, page || 1), pages);
+    var start = (b.page - 1) * PAGE_SIZE;
+    var end = Math.min(start + PAGE_SIZE, list.length);
     var cards = [];
-    for (var i = b.shown; i < end; i++) cards.push(photoCard(list[i], i, list, null));
-    el.browseGrid.append.apply(el.browseGrid, cards);
-    b.shown = end;
-    el.loadMore.hidden = b.shown >= list.length;
-    el.browseStatus.textContent = 'Menampilkan ' + plural(b.shown) + ' dari ' + plural(list.length) + ' foto';
+    for (var i = start; i < end; i++) cards.push(photoCard(list[i], i, list, null));
+    el.browseGrid.replaceChildren.apply(el.browseGrid, cards);
+    el.browseStatus.textContent = list.length
+      ? 'Menampilkan ' + plural(start + 1) + '–' + plural(end) + ' dari ' + plural(list.length) + ' foto'
+      : 'Belum ada foto';
+    renderPager(pages);
+  }
+
+  // Nomor yang tampil: 1, halaman terakhir, dan halaman di sekitar halaman aktif; sisanya "…"
+  function pageItems(cur, total) {
+    var want = {};
+    [1, total, cur - 1, cur, cur + 1].forEach(function (n) { want[n] = true; });
+    if (cur <= 3) { want[2] = want[3] = true; }
+    if (cur >= total - 2) { want[total - 1] = want[total - 2] = true; }
+    var nums = Object.keys(want).map(Number)
+      .filter(function (n) { return n >= 1 && n <= total; })
+      .sort(function (a, c) { return a - c; });
+    var out = [];
+    nums.forEach(function (n, i) {
+      if (i > 0) {
+        var gap = n - nums[i - 1];
+        if (gap === 2) out.push(n - 1);
+        else if (gap > 2) out.push('…');
+      }
+      out.push(n);
+    });
+    return out;
+  }
+
+  function pagerButton(label, page, opts) {
+    opts = opts || {};
+    return h('button', {
+      type: 'button',
+      class: 'pager-btn' + (opts.current ? ' is-current' : '') + (opts.nav ? ' pager-nav' : ''),
+      'aria-label': opts.aria || 'Halaman ' + page,
+      'aria-current': opts.current ? 'page' : null,
+      disabled: opts.disabled || null,
+      text: label,
+      onclick: function () { goToPage(page); }
+    });
+  }
+
+  function renderPager(total) {
+    var cur = state.browse.page;
+    if (total <= 1) {
+      el.pager.hidden = true;
+      return;
+    }
+    el.pager.hidden = false;
+    el.pagerInfo.replaceChildren('Halaman ', h('strong', { text: plural(cur) }), ' dari ', h('strong', { text: plural(total) }));
+    var items = [pagerButton('‹', cur - 1, { nav: true, disabled: cur <= 1, aria: 'Halaman sebelumnya' })];
+    pageItems(cur, total).forEach(function (it) {
+      if (it === '…') items.push(h('span', { class: 'pager-gap', 'aria-hidden': 'true', text: '…' }));
+      else items.push(pagerButton(plural(it), it, { current: it === cur }));
+    });
+    items.push(pagerButton('›', cur + 1, { nav: true, disabled: cur >= total, aria: 'Halaman berikutnya' }));
+    el.pagerPages.replaceChildren.apply(el.pagerPages, items);
+    el.pagerInput.value = String(cur);
+    el.pagerInput.setAttribute('aria-label', 'Nomor halaman, 1 sampai ' + total);
+  }
+
+  function goToPage(page) {
+    var total = pageCount(browseList());
+    var p = Math.min(Math.max(1, page), total);
+    if (p === state.browse.page) return;
+    renderBrowseGrid(p);
+    el.browse.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' });
   }
 
   /* ---------- Meta ---------- */
@@ -659,7 +726,20 @@
   });
 
   el.retry.addEventListener('click', function () { if (state.bib) searchBib(state.bib, { push: false }); });
-  el.loadMore.addEventListener('click', function () { renderBrowseGrid(false); });
+  el.pagerJump.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var n = parseInt(el.pagerInput.value.replace(/\D/g, ''), 10);
+    if (!n) {
+      el.pagerInput.value = String(state.browse.page);
+      return;
+    }
+    goToPage(n);
+    el.pagerInput.value = String(state.browse.page);
+  });
+  el.pagerInput.addEventListener('input', function () {
+    var c = el.pagerInput.value.replace(/\D/g, '');
+    if (c !== el.pagerInput.value) el.pagerInput.value = c;
+  });
 
   el.viewerPrev.addEventListener('click', function () { stepViewer(-1); });
   el.viewerNext.addEventListener('click', function () { stepViewer(1); });

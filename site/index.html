@@ -20,9 +20,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="/assets/style.css?v=20261122-5">
-<script src="/config.js?v=20261122-5"></script>
-<script src="/assets/app.js?v=20261122-5" defer></script>
+<link rel="stylesheet" href="/assets/style.css?v=20261123-1">
+<script src="/config.js?v=20261123-1"></script>
+<script src="/assets/app.js?v=20261123-1" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Langsung ke konten</a>
@@ -131,9 +131,15 @@
         </div>
         <div class="pills" id="slot-filters" role="group" aria-label="Filter jam"></div>
         <ul class="grid" id="browse-grid"></ul>
-        <div class="load-more">
-          <button class="btn btn-outline" type="button" id="load-more" hidden>Muat lebih banyak</button>
-        </div>
+        <nav class="pager" id="browse-pager" aria-label="Halaman foto" hidden>
+          <p class="pager-info" id="pager-info"></p>
+          <div class="pager-pages" id="pager-pages"></div>
+          <form class="pager-jump" id="pager-jump" novalidate>
+            <label for="pager-input">Ke halaman</label>
+            <input id="pager-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <button class="pager-go" type="submit">Pergi</button>
+          </form>
+        </nav>
       </div>
     </div>
   </section>
