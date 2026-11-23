@@ -8,7 +8,7 @@
   "src": "originals",
   "out": "output",
   "site_data": "site/data",
-  "workers": 2,
+  "workers": 4,
 
   "point_map": {
     "CAM AAN": "rute",
