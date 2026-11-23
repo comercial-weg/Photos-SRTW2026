@@ -42,6 +42,8 @@ window.SRTW_CONFIG = {
 
   // Label titik foto (Race Village/Start/On Race/Finish) di kartu, pratinjau, dan tombol pilihan titik
   showPointLabels: false,
+  // Daftar foto: foto dengan BIB terbaca tampil dulu, foto tanpa BIB di halaman akhir
+  taggedFirst: true,
   // Baris filter jam (05.00–05.15, dst.) di daftar foto
   showTimeFilter: false,
 

@@ -573,7 +573,11 @@
       if (state.browse.point !== id) return;
       var photos = ((data && data.photos) || []).map(function (ph) {
         return { id: ph.id, time: ph.time, bibs: ph.bibs || [], point: ph.point || id, slot: slotKey(ph.time) };
-      }).sort(byTime);
+      }).sort(C.taggedFirst === false ? byTime : function (a, c) {
+        // Foto dengan BIB terbaca tampil dulu (urut jam), foto tanpa BIB di halaman akhir
+        var ta = a.bibs.length ? 0 : 1, tc = c.bibs.length ? 0 : 1;
+        return ta - tc || byTime(a, c);
+      });
       state.browse.photos = photos;
       if (!photos.length) {
         el.browseGrid.replaceChildren();
