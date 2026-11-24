@@ -1,0 +1,4 @@
+# Foto yang disembunyikan dari galeri (dibaca otomatis oleh run_pipeline.py).
+# Satu id foto per baris, atau "bib 54326" untuk menghapus tag BIB dari semua foto.
+# Id foto = nama file unduhan tanpa "SRTW2026-" / "SRTW2026-BIBxxxxx-" dan tanpa ".jpg".
+cam-bibin-az8-5105   # permintaan panitia 24/11

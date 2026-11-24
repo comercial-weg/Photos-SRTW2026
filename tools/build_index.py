@@ -65,7 +65,7 @@ def main():
                          'BIB di luar rentang dibuang (salah baca OCR) dan kategori diambil dari rentangnya')
     ap.add_argument('--only-registered', action='store_true',
                     help='buang BIB yang tidak ada di participants.csv (menyaring salah baca OCR)')
-    ap.add_argument('--removed', help='daftar permintaan hapus (lihat keterangan di atas)')
+    ap.add_argument('--removed', nargs='+', help='daftar permintaan hapus (lihat keterangan di atas)')
     ap.add_argument('--category-prefix', default='1=10K,5=5K',
                     help='kategori dari awalan BIB bila tidak ada di participants.csv '
                          '(default: "1=10K,5=5K"; kosongkan untuk mematikan)')
@@ -117,8 +117,10 @@ def main():
     dropped_unknown = defaultdict(int)  # BIB -> jumlah foto
 
     hidden_ids, hidden_bibs = set(), set()
-    if args.removed:
-        with open(args.removed, encoding='utf-8-sig') as f:
+    for removed_path in args.removed or []:
+        if not os.path.exists(removed_path):
+            continue
+        with open(removed_path, encoding='utf-8-sig') as f:
             for line in f:
                 line = line.split('#', 1)[0].strip()
                 if not line:

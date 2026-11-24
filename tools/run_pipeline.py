@@ -71,8 +71,10 @@ def main():
         cmd += ['--valid-ranges', cfg['valid_ranges']]
     if cfg.get('participants'):
         cmd += ['--participants', cfg['participants'], '--only-registered']
-    if cfg.get('removed') and os.path.exists(cfg['removed']):
-        cmd += ['--removed', cfg['removed']]
+    # Daftar hapus: file lokal dari event.json + tools/removed_photos.txt (ikut di GitHub)
+    removed = [p for p in (cfg.get('removed'), os.path.join(TOOLS, 'removed_photos.txt')) if p and os.path.exists(p)]
+    if removed:
+        cmd += ['--removed'] + removed
     run(cmd, 'Bangun index pencarian')
 
     if args.upload:
