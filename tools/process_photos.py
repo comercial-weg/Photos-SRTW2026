@@ -226,6 +226,13 @@ def main():
     photos_csv = os.path.join(out, 'photos.csv')
     detail_csv = os.path.join(out, 'ocr_detail.csv')
     done = load_done(photos_csv)
+    # full/ yang sudah di-upload ke R2 boleh dihapus dari disk (tools/cleanup_full.py);
+    # id-nya dicatat di sini supaya fotonya tidak dianggap belum lengkap lalu diolah ulang.
+    uploaded_full = set()
+    up_path = os.path.join(out, 'full_uploaded.txt')
+    if os.path.exists(up_path):
+        with open(up_path, encoding='utf-8') as f:
+            uploaded_full = {line.strip() for line in f if line.strip()}
 
     tasks, ids, unknown_point, redo = [], {}, 0, 0
     for root, dirs, files in os.walk(src):
@@ -242,7 +249,8 @@ def main():
                 continue
             ids[pid] = rel
             if pid in done:
-                if all(os.path.exists(os.path.join(out, sub, pid + '.jpg')) for sub in ('thumb', 'web', 'full')):
+                if (all(os.path.exists(os.path.join(out, sub, pid + '.jpg')) for sub in ('thumb', 'web'))
+                        and (pid in uploaded_full or os.path.exists(os.path.join(out, 'full', pid + '.jpg')))):
                     continue
                 redo += 1  # tercatat tapi file hasilnya hilang/terputus: olah ulang
                 done.discard(pid)
