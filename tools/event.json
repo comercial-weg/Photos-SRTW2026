@@ -20,7 +20,7 @@
 
   "valid_ranges": "",
   "participants": "",
-  "removed": "removed.txt",
+  "removed": "removed_all.txt",
 
   "r2_remote": "r2",
   "r2_bucket": "srtw-photos"
