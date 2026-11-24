@@ -47,6 +47,9 @@ window.SRTW_CONFIG = {
   // Baris filter jam (05.00–05.15, dst.) di daftar foto
   showTimeFilter: false,
 
+  // Jumlah nomor halaman berurutan yang ditampilkan di bawah daftar foto
+  pagerWindow: 10,
+
   // Jumlah foto per halaman di daftar foto
   pageSize: 20,
   // Lebar rentang jam (menit) untuk filter jam di "Cari per titik foto"

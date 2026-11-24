@@ -644,25 +644,12 @@
     renderPager(pages);
   }
 
-  // Nomor yang tampil: 1, halaman terakhir, dan halaman di sekitar halaman aktif; sisanya "…"
-  function pageItems(cur, total) {
-    var want = {};
-    [1, total, cur - 1, cur, cur + 1].forEach(function (n) { want[n] = true; });
-    if (cur <= 3) { want[2] = want[3] = true; }
-    if (cur >= total - 2) { want[total - 1] = want[total - 2] = true; }
-    var nums = Object.keys(want).map(Number)
-      .filter(function (n) { return n >= 1 && n <= total; })
-      .sort(function (a, c) { return a - c; });
-    var out = [];
-    nums.forEach(function (n, i) {
-      if (i > 0) {
-        var gap = n - nums[i - 1];
-        if (gap === 2) out.push(n - 1);
-        else if (gap > 2) out.push('…');
-      }
-      out.push(n);
-    });
-    return out;
+  // Jendela nomor halaman berurutan di sekitar halaman aktif (default 10), plus halaman pertama/terakhir
+  var PAGER_WINDOW = Math.max(3, C.pagerWindow || 10);
+  function pageWindow(cur, total) {
+    var n = Math.min(PAGER_WINDOW, total);
+    var start = Math.max(1, Math.min(cur - Math.floor((n - 1) / 2), total - n + 1));
+    return { start: start, end: start + n - 1 };
   }
 
   function pagerButton(label, page, opts) {
@@ -686,13 +673,21 @@
     }
     el.pager.hidden = false;
     el.pagerInfo.replaceChildren('Halaman ', h('strong', { text: plural(cur) }), ' dari ', h('strong', { text: plural(total) }));
-    var items = [pagerButton('‹', cur - 1, { nav: true, disabled: cur <= 1, aria: 'Halaman sebelumnya' })];
-    pageItems(cur, total).forEach(function (it) {
-      if (it === '…') items.push(h('span', { class: 'pager-gap', 'aria-hidden': 'true', text: '…' }));
-      else items.push(pagerButton(plural(it), it, { current: it === cur }));
-    });
-    items.push(pagerButton('›', cur + 1, { nav: true, disabled: cur >= total, aria: 'Halaman berikutnya' }));
-    el.pagerPages.replaceChildren.apply(el.pagerPages, items);
+    var w = pageWindow(cur, total);
+    var gap = function () { return h('span', { class: 'pager-gap', 'aria-hidden': 'true', text: '…' }); };
+    var nums = [];
+    for (var n = w.start; n <= w.end; n++) nums.push(pagerButton(plural(n), n, { current: n === cur }));
+    var first = h('span', { class: 'pager-end pager-first' });
+    if (w.start > 1) first.append(pagerButton('1', 1, {}), w.start > 2 ? gap() : '');
+    var last = h('span', { class: 'pager-end pager-last' });
+    if (w.end < total) last.append(w.end < total - 1 ? gap() : '', pagerButton(plural(total), total, {}));
+    var win = h('span', { class: 'pager-window' });
+    win.append.apply(win, nums);
+    el.pagerPages.replaceChildren(
+      pagerButton('‹', cur - 1, { nav: true, disabled: cur <= 1, aria: 'Halaman sebelumnya' }),
+      first, win, last,
+      pagerButton('›', cur + 1, { nav: true, disabled: cur >= total, aria: 'Halaman berikutnya' })
+    );
     el.pagerInput.value = String(cur);
     el.pagerInput.setAttribute('aria-label', 'Nomor halaman, 1 sampai ' + total);
   }

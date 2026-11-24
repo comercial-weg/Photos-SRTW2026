@@ -566,6 +566,8 @@ a:hover { color: var(--rose-deep); }
 .pager-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .pager-nav { font-size: 20px; line-height: 1; }
 .pager-gap { min-width: 20px; text-align: center; color: var(--muted-2); }
+.pager-window, .pager-end { display: flex; align-items: center; gap: 8px; }
+.pager-end:empty { display: none; }
 .pager-jump {
   display: flex;
   align-items: center;
@@ -599,16 +601,26 @@ a:hover { color: var(--rose-deep); }
 }
 .pager-go:hover { background: var(--plum-hover); }
 
-@media (max-width: 480px) {
-  .pager { padding: 18px 8px; }
-  .pager-pages { gap: 4px; flex-wrap: nowrap; }
-  .pager-btn { min-width: 34px; height: 38px; padding: 0 6px; border-radius: 8px; font-size: 14px; }
-  .pager-gap { min-width: 12px; }
-}
-@media (max-width: 360px) {
-  .pager { padding: 16px 4px; }
-  .pager-pages { gap: 3px; }
-  .pager-btn { min-width: 30px; height: 36px; padding: 0 4px; font-size: 13px; }
+/* HP: 10 nomor jadi 2 baris x 5, tombol ‹ › dan halaman pertama/terakhir di baris bawahnya */
+@media (max-width: 760px) {
+  .pager { padding: 18px 12px; }
+  .pager-pages {
+    display: grid;
+    width: 100%;
+    max-width: 380px;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "win win win" "prev ends next";
+    gap: 10px 8px;
+    align-items: center;
+  }
+  .pager-window { grid-area: win; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .pager-window .pager-btn { min-width: 0; width: 100%; padding: 0 2px; }
+  .pager-pages > .pager-nav:first-child { grid-area: prev; }
+  .pager-pages > .pager-nav:last-child { grid-area: next; }
+  .pager-first { grid-area: ends; justify-self: start; }
+  .pager-last { grid-area: ends; justify-self: end; }
+  .pager-end { gap: 4px; }
+  .pager-btn { height: 42px; border-radius: 9px; font-size: 14px; }
   .pager-gap { min-width: 10px; }
 }
 
